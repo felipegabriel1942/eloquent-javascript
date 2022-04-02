@@ -102,3 +102,9 @@ const person2 = {
 
 console.log(deepEqual(person1, person2));
 console.log(deepEqual('1559', '1559'));
+
+
+let array2 = [1, 2, 3, 4, 5];
+
+console.log(array2.filter(a => a > 2));
+console.log(array2);
