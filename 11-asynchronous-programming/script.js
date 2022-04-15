@@ -1,3 +1,5 @@
+let div = document.querySelector('a');
+
 setTimeout(logMessages, 1000);
 
 function logMessages() {
@@ -44,4 +46,15 @@ function request(nest, target, type, content) {
     }
     attempt(1);
   });
+}
+
+
+
+console.log(div);
+
+if (div) {
+  div.addEventListener('click', event => {
+    console.log('fui clicado')
+  });
+  
 }
