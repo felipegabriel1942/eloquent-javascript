@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 4px;
+        background: blue;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="click-me">Click me</button>
+    <p>No handler here.</p>
+
+    <button id="click-me-once">Act-once button</button>
+
+    <button id="btn-event-object">Click me any way you want</button>
+
+    <p id="p-propagation">
+      A paragraph with a <button id="btn-propagation">button</button>.
+    </p>
+
+    <p>Drag the bar to change its width:</p>
+    <div
+      id="drag-bar"
+      style="background: orange; width: 60px; height: 20px"
+    ></div>
+
+    <textarea>Type something here...</textarea>
+
+    <div id="ballon-area"></div>
+
+    <div id="tab-wrapper">
+      <button data-tabname="one">Tab 1</button>
+      <button data-tabname="two">Tab 2</button>
+      <button data-tabname="three">Tab 3</button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
