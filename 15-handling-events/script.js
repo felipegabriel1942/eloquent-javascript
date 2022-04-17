@@ -126,7 +126,7 @@ function asTabs(node) {
 
   for (let i = 0; i < buttons.length; i++) {
     const button = buttons[i];
-    button.style.backgroundColor =  i > 0 ? '' : 'red';
+    button.style.backgroundColor = i > 0 ? '' : 'red';
     button.addEventListener('click', (event) => {
       changeTab(node, i);
     });
@@ -134,7 +134,7 @@ function asTabs(node) {
     const tab = document.createElement('div');
     tab.style.height = '100px';
     tab.style.width = '100px';
-    tab.style.backgroundColor = 'gray';
+    tab.style.border = '1px solid black';
     tab.style.display = i > 0 ? 'none' : '';
     tab.innerText = button.attributes[0].value;
 
