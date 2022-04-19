@@ -76,6 +76,8 @@ class State {
 State.prototype.update = function (time, keys) {
   let actors = this.actors.map((actor) => actor.update(time, this, keys));
 
+  console.log(actors);
+
   let newState = new State(this.level, actors, this.status);
 
   if (newState.status != 'playing') {
@@ -255,6 +257,24 @@ Coin.prototype.update = function (time) {
   );
 };
 
+class Monster {
+  constructor(pos, basePos, speed) {
+    this.pos = pos;
+    this.basePos = basePos;
+    this.speed = speed;
+  }
+
+  static create(pos) {
+    return new Monster(pos.plus(new Vec(5, 0.4)), new Vec(0, 0));
+  }
+}
+
+Monster.prototype.size = new Vec(0.8, 1.5);
+
+Monster.prototype.update = function (state) {
+  return new Monster(this.pos.plus(new Vec(0.3, 0.4)), new Vec(0, 0));
+};
+
 const levelChars = {
   '.': 'empty',
   '#': 'wall',
@@ -264,6 +284,7 @@ const levelChars = {
   '=': Lava,
   '|': Lava,
   v: Lava,
+  x: Monster,
 };
 
 function elt(name, attrs, ...children) {
@@ -374,11 +395,13 @@ function trackKeys(keys) {
 
   window.addEventListener('keydown', track);
   window.addEventListener('keyup', track);
+  down.unregister = () => {
+    window.removeEventListener('keydown', track);
+    window.removeEventListener('keyup', track);
+  };
 
   return down;
 }
-
-const arrowKeys = trackKeys(['ArrowLeft', 'ArrowRight', 'ArrowUp']);
 
 function runAnimation(frameFunc) {
   let lastTime = null;
@@ -405,12 +428,32 @@ function runLevel(level, Display) {
   let ending = 1;
 
   return new Promise((resolve) => {
-    runAnimation((time) => {
-      state = state.update(time, arrowKeys);
+    let gamePaused = false;
 
+    const isGamePaused = () => gamePaused;
+
+    const pauseOrResumeGame = (e) => {
+      if (e.key == 'Escape') {
+        gamePaused = !gamePaused;
+      }
+    };
+
+    const waitForResume = () => {
+      if (isGamePaused()) {
+        setTimeout(waitForResume, 100);
+      } else {
+        runAnimation(animate);
+      }
+    };
+
+    const animate = (time) => {
+      state = state.update(time, arrowKeys);
       display.syncState(state);
 
-      if (state.status == 'playing') {
+      if (isGamePaused()) {
+        waitForResume();
+        return false;
+      } else if (state.status == 'playing') {
         return true;
       } else if (ending > 0) {
         ending -= time;
@@ -418,9 +461,15 @@ function runLevel(level, Display) {
       } else {
         display.clear();
         resolve(state);
+        document.removeEventListener('keydown', pauseOrResumeGame);
+        arrowKeys.unregister();
         return false;
       }
-    });
+    };
+
+    document.addEventListener('keydown', pauseOrResumeGame);
+    let arrowKeys = trackKeys(['ArrowLeft', 'ArrowRight', 'ArrowUp']);
+    runAnimation(animate);
   });
 }
 
