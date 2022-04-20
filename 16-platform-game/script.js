@@ -76,8 +76,6 @@ class State {
 State.prototype.update = function (time, keys) {
   let actors = this.actors.map((actor) => actor.update(time, this, keys));
 
-  console.log(actors);
-
   let newState = new State(this.level, actors, this.status);
 
   if (newState.status != 'playing') {
@@ -258,21 +256,53 @@ Coin.prototype.update = function (time) {
 };
 
 class Monster {
-  constructor(pos, basePos, speed) {
+  constructor(pos, speed, chase) {
     this.pos = pos;
-    this.basePos = basePos;
     this.speed = speed;
+    this.chase = chase;
   }
 
-  static create(pos) {
-    return new Monster(pos.plus(new Vec(5, 0.4)), new Vec(0, 0));
+  get type() {
+    return 'monster';
+  }
+
+  static create(pos, ch) {
+    return new Monster(pos.plus(new Vec(0, -1)), new Vec(3, 0), ch != 'm');
   }
 }
 
-Monster.prototype.size = new Vec(0.8, 1.5);
+Monster.prototype.size = new Vec(1.2, 2);
 
-Monster.prototype.update = function (state) {
-  return new Monster(this.pos.plus(new Vec(0.3, 0.4)), new Vec(0, 0));
+Monster.prototype.update = function (time, state) {
+  let newPos;
+
+  if (this.chase) {
+    if (state.player.pos.x < this.pos.x) {
+      this.speed = new Vec(-3, 0);
+    } else {
+      this.speed = new Vec(3, 0);
+    }
+  }
+
+  newPos = this.pos.plus(this.speed.times(time));
+
+  if (!state.level.touches(newPos, this.size, 'wall')) {
+    return new Monster(newPos, this.speed, this.chase);
+  } else {
+    return new Monster(this.pos, this.speed.times(-1), this.chase);
+  }
+};
+
+Monster.prototype.collide = function (state) {
+  let player = state.player;
+  let monster = this;
+
+  if (monster.pos.y - player.pos.y > 1) {
+    let filtered = state.actors.filter((a) => a != this);
+    return new State(state.level, filtered, state.status);
+  } else {
+    return new State(state.level, state.actors, 'lost');
+  }
 };
 
 const levelChars = {
@@ -284,7 +314,7 @@ const levelChars = {
   '=': Lava,
   '|': Lava,
   v: Lava,
-  x: Monster,
+  m: Monster,
 };
 
 function elt(name, attrs, ...children) {

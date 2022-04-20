@@ -29,7 +29,7 @@
 }
 
 .monster {
-  background-color: green;
+  background: red;
 }
 
 .lost .player {
